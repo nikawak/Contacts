@@ -1,25 +1,8 @@
 ﻿@model CreateContact
 
-<form asp-action="CreateContact" asp-controller="Contact" method="post">
-    <div class="modal fade" id="modalCreate" tabindex="-1" role="dialog">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h4 class="modal-title">Создать новый контакт</h4>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <input class="form-control mb-2" asp-for="Name" type="text" placeholder="Андрей.."/>
-                    <input class="form-control mb-2" asp-for="MobilePhone" type="tel" placeholder="+375 (12) 345 67 89.."/>
-                    <input class="form-control mb-2" asp-for="JobTitle" type="text" placeholder="Программист.."/>
-                    <input class="form-control mb-2" asp-for="BirthDate" type="date" placeholder="11.09.2001.."/>
-                </div>
-                <div class="modal-footer row">
-                    <button type="submit" class="btn btn-primary col my-2 mx-4 py-2">Create</button>
-                    <button type="button" class="btn btn-secondary col my-2 mx-4 py-2" data-bs-dismiss="modal">Close</button>
-                </div>
-            </div>
-        </div>
-    </div>
-</form>
+
+<input class="form-control mb-2" asp-for="Name" type="text" placeholder="Андрей.."/>
+<input class="form-control mb-2" asp-for="MobilePhone" type="tel" placeholder="+375 (12) 345 67 89.."/>
+<input class="form-control mb-2" asp-for="JobTitle" type="text" placeholder="Программист.."/>
+<input class="form-control mb-2" asp-for="BirthDate" type="date" placeholder="11.09.2001.."/>
 

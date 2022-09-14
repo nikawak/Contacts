@@ -24,7 +24,8 @@ else
                 </tr>
                 </thead>
 
-
+                <input id="contact-id-action" hidden />
+                
                 @foreach (var contact in Model)
                 {
                     <tr class="shadow-lg py-2 mb-4">
@@ -32,18 +33,141 @@ else
                         <td>@contact.MobilePhone</td>
                         <td>@contact.JobTitle</td>
                         <td>@contact.BirthDate.ToString("dd MMMM yyyy")</td>
-                        <td><button data-bs-toggle="modal" data-bs-target="#modalEdit" class="btn btn-secondary" type="button">Edit</button></td>
-                        @await Html.PartialAsync("EditContact", contact)
+                        <td>
+                            <button class="btn btn-secondary" type="button"
+                                    onclick="openModalEdit({url:'/Contact/EditContact', data: '@contact.Id' })"
+                                    data-bs-toggle="ajax-modal" data-bs-target="#modalEdit">Edit</button>
+
+                            <button onclick="openModalDelete({url:'/Contact/DeleteContact', data: '@contact.Id' })"
+                                    data-bs-toggle="ajax-modal" data-bs-target="#modalDelete"
+                                    class="btn btn-danger" type="button">Delete</button>
+                        </td>
+                        
                     </tr>
                 }
             </table>
 
-            <button data-bs-toggle="modal" data-bs-target="#modalCreate" class="btn btn-secondary" type="button">Add new contact</button>
+            <button onclick="openModalCreate({url:'/Contact/CreateContact'})" data-bs-toggle="ajax-modal" data-bs-target="#modalDelete"
+                    class="btn btn-secondary" type="button">Add new contact</button>
         </div>
     </form>
 }
 
-@await Html.PartialAsync("CreateContact", new CreateContact())
+<form asp-action="EditContact" asp-controller="Contact" method="post">
+<div class="modal fade" id="modalEdit" tabindex="-1" role="dialog">
+<div class="modal-dialog modal-dialog-centered">
+<div class="modal-content">
+<div class="modal-header">
+    <h4 class="modal-title">Изменить контакт</h4>
+    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+</div>
+<div class="modal-body">
+</div>
+    <div class="modal-footer row">
+        <button type="submit" class="btn btn-primary col my-2 mx-4 py-2">Save</button>
+        <button type="button" class="btn btn-secondary col my-2 mx-4 py-2" data-bs-dismiss="modal">Close</button>
+    </div>
+</div>
+</div>
+</div>
+</form>
+
+<form asp-action="DeleteContact" asp-controller="Contact" method="post">
+    <div class="modal fade" id="modalDelete" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Удаление контакта</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                </div>
+                <div class="modal-footer row">
+                    <button type="submit" class="btn btn-danger col my-2 mx-4 py-2">Delete</button>
+                    <button type="button" class="btn btn-secondary col my-2 mx-4 py-2" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<form asp-action="CreateContact" asp-controller="Contact" method="post">
+<div class="modal fade" id="modalCreate" tabindex="-1" role="dialog">
+<div class="modal-dialog modal-dialog-centered">
+<div class="modal-content">
+<div class="modal-header">
+    <h4 class="modal-title">Создать новый контакт</h4>
+    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+</div>
+<div class="modal-body">
+</div>
+    <div class="modal-footer row">
+        <button type="submit" class="btn btn-primary col my-2 mx-4 py-2">Create</button>
+        <button type="button" class="btn btn-secondary col my-2 mx-4 py-2" data-bs-dismiss="modal">Close</button>
+    </div>
+</div>
+</div>
+</div>
+</form>
+
+@section Scripts
+{
+    <script type="text/javascript">
+
+        function openModalEdit(params) {
+            var url = params.url;
+            var id = params.data;
+            var modal = $("#modalEdit");
+
+            $.ajax({
+                type: 'GET',
+                url: url,
+                data: { 'id': id },
+                success: function(response) {
+                    $(".modal-body").html(response);
+                    modal.modal('show');
+                },
+                failure: function () {
+                    modal.modal('hide');
+                }
+            });
+        }
+        function openModalDelete(params) {
+            var url = params.url;
+            var id = params.data;
+            var modal = $("#modalDelete");
+
+            $.ajax({
+                type: 'GET',
+                url: url,
+                data: { 'id': id },
+                success: function (response) {
+                    $(".modal-body").html(response);
+                    modal.modal('show');
+                },
+                failure: function () {
+                    modal.modal('hide');
+                }
+            });
+        }
+        function openModalCreate(params) {
+            var url = params.url;
+            var modal = $("#modalCreate");
+
+            $.ajax({
+                type: 'GET',
+                url: url,
+                success: function (response) {
+                    $(".modal-body").html(response);
+                    modal.modal('show');
+                },
+                failure: function () {
+                    modal.modal('hide');
+                }
+            });
+          
+        }
 
 
-
+</script>
+}

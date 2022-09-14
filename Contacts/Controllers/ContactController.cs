@@ -25,6 +25,12 @@ namespace Contacts.Controllers
 
             return View(contacts);
         }
+        [HttpGet]
+        public async Task<IActionResult> CreateContact()
+        {
+
+            return PartialView("CreateContact");
+        }
         [HttpPost]
         public async Task<IActionResult> CreateContact(CreateContact model)
         {
@@ -43,12 +49,24 @@ namespace Contacts.Controllers
         public async Task<IActionResult> EditContact(Guid id)
         {
             var contact = await _contactRepository.GetAsync(id);
-            return View(contact);
+            return PartialView("EditContact", contact);
         }
         [HttpPost]
         public async Task<IActionResult> EditContact(Contact model)
         {
             await _contactRepository.UpdateAsync(model);
+            return RedirectToAction("Index");
+        }
+        [HttpGet]
+        public async Task<IActionResult> DeleteContact(Guid id)
+        {
+            var contact = await _contactRepository.GetAsync(id);
+            return PartialView("DeleteContact", contact);
+        }
+        [HttpPost]
+        public async Task<IActionResult> DeleteContact(Contact model)
+        {
+            await _contactRepository.DeleteAsync(model);
             return RedirectToAction("Index");
         }
 
