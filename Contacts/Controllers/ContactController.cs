@@ -2,28 +2,31 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 using System.Reflection;
-using Contacts.Sevices;
+using Contacts.Services;
+using Contacts.Services.Intefaces;
 
 namespace Contacts.Controllers
 {
     public class ContactController : Controller
     {
         private readonly ILogger<ContactController> _logger;
+        private readonly IContactRepository _contactRepository;
 
-        public ContactController(ILogger<ContactController> logger)
+        public ContactController(ILogger<ContactController> logger, IContactRepository contactRepository)
         {
             _logger = logger;
+            _contactRepository = contactRepository;
         }
 
         [HttpGet]
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            var contacts = Mock.GetContacts();
+            var contacts = await _contactRepository.GetAllAsync();
 
             return View(contacts);
         }
         [HttpPost]
-        public IActionResult CreateContact(CreateContact model)
+        public async Task<IActionResult> CreateContact(CreateContact model)
         {
             var contact = new Contact()
             {
@@ -32,20 +35,21 @@ namespace Contacts.Controllers
                 BirthDate = model.BirthDate,
                 MobilePhone = model.MobilePhone
             };
-            return View("Index");
+            await _contactRepository.CreateAsync(contact);
+            return RedirectToAction("Index");
         }
 
         [HttpGet]
-        public IActionResult EditContact(Guid id)
+        public async Task<IActionResult> EditContact(Guid id)
         {
-            var contact = Mock.GetById(id);
+            var contact = await _contactRepository.GetAsync(id);
             return View(contact);
         }
         [HttpPost]
-        public IActionResult EditContact(Contact model)
+        public async Task<IActionResult> EditContact(Contact model)
         {
-
-            return View("Index");
+            await _contactRepository.UpdateAsync(model);
+            return RedirectToAction("Index");
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Contacts.Models;
 
-namespace Contacts.Sevices
+namespace Contacts.Services
 {
     public static class Mock
     {
