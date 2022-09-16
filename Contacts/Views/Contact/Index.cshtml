@@ -3,14 +3,16 @@
 @{
     ViewData["Title"] = "Ваши контакты";
 }
-@if (Model?.Count() == 0)
-{
-    <h1 class="my-5 text-center">There is no one contact</h1>
-    <button data-bs-toggle="modal" data-bs-target="#modalCreate" class="btn btn-secondary" type="button">Add new contact</button>
-}
-else
-{
-    <form>
+
+<form>
+
+    @if (Model?.Count() == 0)
+    {
+        <h1 class="my-5 text-center">There is no one contact</h1>
+    }
+    else
+    {
+
         <h1 class="my-5 text-center">@ViewData["Title"]</h1>
         <div class="container mt-5">
             <table class="table table-striped table-dark">
@@ -24,8 +26,8 @@ else
                 </tr>
                 </thead>
 
-                <input id="contact-id-action" hidden />
-                
+                <input id="contact-id-action" hidden/>
+
                 @foreach (var contact in Model)
                 {
                     <tr class="shadow-lg py-2 mb-4">
@@ -35,25 +37,28 @@ else
                         <td>@contact.BirthDate.ToString("dd MMMM yyyy")</td>
                         <td>
                             <button class="btn btn-secondary" type="button"
-                                    onclick="openModalEdit({url:'/Contact/EditContact', data: '@contact.Id' })"
-                                    data-bs-toggle="ajax-modal" data-bs-target="#modalEdit">Edit</button>
+                                    onclick="openModalEdit({ url: '/Contact/EditContact', data: '@contact.Id' })"
+                                    data-bs-toggle="ajax-modal" data-bs-target="modalEdit">Edit</button>
 
-                            <button onclick="openModalDelete({url:'/Contact/DeleteContact', data: '@contact.Id' })"
-                                    data-bs-toggle="ajax-modal" data-bs-target="#modalDelete"
+                            <button onclick="openModalDelete({ url: '/Contact/DeleteContact', data: '@contact.Id' })"
+                                    data-bs-toggle="ajax-modal" data-bs-target="modalDelete"
                                     class="btn btn-danger" type="button">Delete</button>
                         </td>
-                        
+
                     </tr>
                 }
             </table>
-
-            <button onclick="openModalCreate({url:'/Contact/CreateContact'})" data-bs-toggle="ajax-modal" data-bs-target="#modalDelete"
-                    class="btn btn-secondary" type="button">Add new contact</button>
         </div>
-    </form>
-}
 
-<form asp-action="EditContact" asp-controller="Contact" method="post">
+    }
+    <div class="text-center">
+        <button onclick="openModalCreate({ url: '/Contact/CreateContact' })"
+                data-bs-toggle="ajax-modal" data-bs-target="modalCreate"
+                class="btn btn-secondary" type="button">Create</button>
+    </div>
+</form>
+
+<form id="form-edit" asp-action="EditContact" asp-controller="Contact" method="post">
 <div class="modal fade" id="modalEdit" tabindex="-1" role="dialog">
 <div class="modal-dialog modal-dialog-centered">
 <div class="modal-content">
@@ -64,7 +69,7 @@ else
 <div class="modal-body">
 </div>
     <div class="modal-footer row">
-        <button type="submit" class="btn btn-primary col my-2 mx-4 py-2">Save</button>
+        <button type="submit" id="modal-edit-sumbit" class="btn btn-primary col my-2 mx-4 py-2">Save</button>
         <button type="button" class="btn btn-secondary col my-2 mx-4 py-2" data-bs-dismiss="modal">Close</button>
     </div>
 </div>
@@ -91,7 +96,7 @@ else
     </div>
 </form>
 
-<form asp-action="CreateContact" asp-controller="Contact" method="post">
+<form id="form-create" asp-action="CreateContact" asp-controller="Contact" method="post">
 <div class="modal fade" id="modalCreate" tabindex="-1" role="dialog">
 <div class="modal-dialog modal-dialog-centered">
 <div class="modal-content">
@@ -112,6 +117,10 @@ else
 
 @section Scripts
 {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
     <script type="text/javascript">
 
         function openModalEdit(params) {
@@ -127,11 +136,12 @@ else
                     $(".modal-body").html(response);
                     modal.modal('show');
                 },
-                failure: function () {
+                failure: function() {
                     modal.modal('hide');
                 }
             });
         }
+
         function openModalDelete(params) {
             var url = params.url;
             var id = params.data;
@@ -141,33 +151,105 @@ else
                 type: 'GET',
                 url: url,
                 data: { 'id': id },
-                success: function (response) {
+                success: function(response) {
                     $(".modal-body").html(response);
                     modal.modal('show');
                 },
-                failure: function () {
+                failure: function() {
                     modal.modal('hide');
                 }
             });
         }
+
         function openModalCreate(params) {
             var url = params.url;
             var modal = $("#modalCreate");
+            
 
             $.ajax({
                 type: 'GET',
                 url: url,
-                success: function (response) {
+                success: function(response) {
                     $(".modal-body").html(response);
                     modal.modal('show');
                 },
-                failure: function () {
+                failure: function() {
                     modal.modal('hide');
                 }
             });
-          
+
         }
 
+        $('#form-create').validate({
+            rules: {
+                Name: {
+                    required: true,
+                    minlength: 3
+                },
+                MobilePhone: {
+                    required: true,
+                    remote: {
+                        url: '/Contact/ValidatePhoneNumber',
+                        type: 'POST',
+                        dataType: 'json',
+                        data: {
+                            'phoneNumber': function() {
+                                return $('#form-create :input[name="MobilePhone"]').val();
+                            }
+                        }
+                    }
+                },
+                BirthDate: {
+                    date: true
+                }
+            },
+            messages: {
+                Name: {
+                    required: 'Field "Name" is required',
+                    minlength: 'Name is too short'
+                },
+                MobilePhone: {
+                    required: 'Field "Mobile phone" is required',
+                    remote: 'Incorrect phone format or phone number'
+                }
+            }
+        });
 
-</script>
+
+        $('#form-edit').validate({
+            rules: {
+                Name: {
+                    required: true,
+                    minlength: 3
+                },
+                MobilePhone: {
+                    required: true,
+                    remote: {
+                        url: '/Contact/ValidatePhoneNumber',
+                        type: 'POST',
+                        dataType: 'json',
+                        data: {
+                            'phoneNumber': function () {
+                                return $('#form-edit :input[name="MobilePhone"]').val();
+                            }
+                        }
+                    }
+                },
+                BirthDate: {
+                    date: true
+                }
+            },
+            messages: {
+                Name: {
+                    required: 'Field "Name" is required',
+                    minlength: 'Name is too short'
+                },
+                MobilePhone: {
+                    required: 'Field "Mobile phone" is required',
+                    remote: 'Incorrect phone format or phone number'
+                }
+            }
+        });
+
+    </script>
 }

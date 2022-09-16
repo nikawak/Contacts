@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using Contacts.Services;
 using Contacts.Services.Intefaces;
 
@@ -22,13 +23,14 @@ namespace Contacts.Controllers
         public async Task<IActionResult> Index()
         {
             var contacts = await _contactRepository.GetAllAsync();
+            
 
             return View(contacts);
         }
         [HttpGet]
-        public async Task<IActionResult> CreateContact()
+        public async Task<IActionResult> CreateContact(string info)
         {
-
+            await Task.CompletedTask;
             return PartialView("CreateContact");
         }
         [HttpPost]
@@ -68,6 +70,15 @@ namespace Contacts.Controllers
         {
             await _contactRepository.DeleteAsync(model);
             return RedirectToAction("Index");
+        }
+
+
+        [HttpPost]
+        public bool ValidatePhoneNumber(string phoneNumber)
+        {
+            var regex = new Regex("^(\\s*)?(\\+)?([- _():=+]?\\d[- _():=+]?){10,13}(\\s*)?$");
+            var isValid = regex.IsMatch(phoneNumber);
+            return isValid;
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
